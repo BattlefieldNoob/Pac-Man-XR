@@ -32,7 +32,10 @@ public class MazeGenerator : MonoBehaviour
 		for (int i = 0; i < x; i++)
 		{
 			// Random points
-			points.Add(new Vector3(Random.Range(0, x), STANDARD_HEIGHT, Random.Range(0, z)));
+			var xi = Random.Range(0, x);
+			var zi = Random.Range(0, z);
+			if (!points.ToList().Exists(it => (it.x + 2 == xi || it.x - 2 == xi) && (it.z - 2 == zi || it.z + 2 == zi)))
+			points.Add(new Vector3(xi, STANDARD_HEIGHT, zi));
 		}
   
 		// borders
