@@ -22,7 +22,12 @@ public class Agent : MonoBehaviour
 		this.FixedUpdateAsObservable().Subscribe(unit =>
 			{
 				//Debug.Log("Update Destination");
-				agent.SetDestination(followObject.position);
+				NavMeshHit myNavHit;
+				if(NavMesh.SamplePosition(followObject.position, out myNavHit, 100 , -1))
+				{
+					agent.SetDestination(myNavHit.position);
+				}
+				
 			});
 		//AsyncCall();
 	}

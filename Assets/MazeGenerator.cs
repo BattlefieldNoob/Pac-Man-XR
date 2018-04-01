@@ -11,6 +11,8 @@ public class MazeGenerator : MonoBehaviour
     private const float STANDARD_HEIGHT = 0.5f;
 
     public GameObject CubePrefab;
+    public GameObject PointPrefab;
+    public GameObject PowerUpPrefab;
 
     public int XSize = 20;
     public int ZSize = 20;
@@ -99,6 +101,28 @@ public class MazeGenerator : MonoBehaviour
             //il prefab ha già la scala corretta e viene instanziato nella posizione giusta
             var obj=Instantiate(CubePrefab, vector3, Quaternion.identity);
             obj.transform.parent = mazeContainter.transform;
+        }
+
+
+        //PowerUp and points
+        for (int xi = 1; xi < XSize - 1; xi++)
+        {
+            for (int zi = 1; zi < ZSize - 1; zi++)
+            {
+                if (!_points.Exists(it => it.x == xi * scale && it.z == zi * scale))
+                {
+                    if (Random.Range(0f, 1f) > 0.9f)
+                    {
+                        Instantiate(PowerUpPrefab, new Vector3(xi * scale, STANDARD_HEIGHT*2, zi * scale),
+                            Quaternion.identity);
+                    }
+                    else
+                    {
+                        Instantiate(PointPrefab, new Vector3(xi * scale, STANDARD_HEIGHT*2, zi * scale),
+                            Quaternion.identity);
+                    }
+                }
+            }
         }
 
         GameObject.Find("Agent").transform.position = aRandomPointWithoutCubes();
