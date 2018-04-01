@@ -8,12 +8,15 @@ public class MazeGenerator : MonoBehaviour {
 	private const float STANDARD_HEIGHT = 0.5f;
 
 	public GameObject CubePrefab;
+
+	public int XSize = 20;
+	public int ZSize = 20;
 	
 	private const float scale = 0.5f;
 
 	// Use this for initialization
 	private void Start () {
-		CreateMap(20, 20);
+		CreateMap(XSize, ZSize);
 	}
 	
 	private List<Vector3> _points = new List<Vector3>();
@@ -50,15 +53,27 @@ public class MazeGenerator : MonoBehaviour {
 			}
 		}
 
-		
 		// generate things
 		foreach (var vector3 in _points) {
 			//il prefab ha già la scala corretta e viene instanziato nella posizione giusta
 			Instantiate(CubePrefab, vector3, Quaternion.identity);
 		}
-		
+
+		GameObject.Find("Agent").transform.position = aRandomPointWithoutCubes();
+		GameObject.Find("GreenGhost").transform.position = aRandomPointWithoutCubes();
 	}
 
+	private Vector3 aRandomPointWithoutCubes() {
+		var maxAttempts = 1000;
+		for (var i = 0; i < maxAttempts; i++) {
+			var xi = Random.Range(0, XSize);
+            var zi = Random.Range(0, ZSize);
+			if (!_points.ToList().Exists(it => (it.x == xi && it.z == zi)))
+				return new Vector3(xi * scale, 0.5566f, zi * scale);
+		}
+		return new Vector3(-1, 0, -1);
+	}
+	
 	private bool ItWillBeTheAreaStillWalkable(Vector3 pointCandidate) {
 		return !_points.Exists(it => {
 			var isValidPosition = it.x == pointCandidate.x && it.z == pointCandidate.z;	
@@ -117,5 +132,5 @@ public class MazeGenerator : MonoBehaviour {
 	private bool ThereIsAnotherItemRightDown(Vector3 point) {
 		return _points.Exists(it => point.x - 1 * scale == it.x && point.z + 1 * scale == it.z); 
 	}
-	
+
 }

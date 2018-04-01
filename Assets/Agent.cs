@@ -24,7 +24,7 @@ public class Agent : MonoBehaviour
 				//Debug.Log("Update Destination");
 				agent.SetDestination(followObject.position);
 			});
-		AsyncCall();
+		//AsyncCall();
 	}
 	
 	public async void AsyncCall()
