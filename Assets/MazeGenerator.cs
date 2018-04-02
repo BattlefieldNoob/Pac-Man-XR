@@ -21,19 +21,23 @@ public class MazeGenerator : MonoBehaviour
     public int ZSize = 20;
 
     public ReactiveProperty<int> score { get; private set; }
+    public ReactiveProperty<int> pointsAndPowerupCount { get; private set; }
 
     private const float scale = 0.5f;
 
     // Use this for initialization
     private void Start() {
         score = new ReactiveProperty<int>(0);
+        pointsAndPowerupCount = new ReactiveProperty<int>(0);
         CreateMap(XSize, ZSize);
         score.Subscribe(value => Debug.Log(value));
+        pointsAndPowerupCount.Where(it => it < 1).Subscribe( _ => CreatePoints());
     }
 
     public void OnScoreAPoint(int value, GameObject itemHit) {
         Destroy(itemHit);
         score.Value = score.Value + value;
+        pointsAndPowerupCount.Value -= 1;
     }
 
     public void OnGhostHit(GameObject ghost) {
@@ -119,30 +123,30 @@ public class MazeGenerator : MonoBehaviour
             obj.transform.parent = mazeContainter.transform;
         }
 
+        CreatePoints();
+        
+        GameObject.Find("Agent").transform.position = aRandomPointWithoutCubes();
+        GameObject.Find("GreenGhost").transform.position = aRandomPointWithoutCubes();
+    }
 
+    private void CreatePoints() {
         //PowerUp and points
-        for (int xi = 1; xi < XSize - 1; xi++)
-        {
-            for (int zi = 1; zi < ZSize - 1; zi++)
-            {
-                if (!_points.Exists(it => it.x == xi * scale && it.z == zi * scale))
-                {
-                    if (Random.Range(0f, 1f) > 0.9f)
-                    {
-                        Instantiate(PowerUpPrefab, new Vector3(xi * scale, STANDARD_HEIGHT*2, zi * scale),
-                            Quaternion.identity);
-                    }
-                    else
-                    {
-                        Instantiate(PointPrefab, new Vector3(xi * scale, STANDARD_HEIGHT*2, zi * scale),
-                            Quaternion.identity);
+        for (int xi = 1; xi < XSize - 1; xi++) {
+            for (int zi = 1; zi < ZSize - 1; zi++) {
+                if (!_points.Exists(it => it.x == xi * scale && it.z == zi * scale)) {
+                    if (Random.RandomRange(0f, 1f) > 0.4) {
+                        if (Random.Range(0f, 1f) > 0.97f) {
+                            Instantiate(PowerUpPrefab, new Vector3(xi * scale, STANDARD_HEIGHT*2, zi * scale),
+                                Quaternion.identity);
+                        } else {
+                            Instantiate(PointPrefab, new Vector3(xi * scale, STANDARD_HEIGHT*2, zi * scale),
+                                Quaternion.identity);
+                        }
+                        pointsAndPowerupCount.Value += 1;
                     }
                 }
             }
         }
-
-        GameObject.Find("Agent").transform.position = aRandomPointWithoutCubes();
-        GameObject.Find("GreenGhost").transform.position = aRandomPointWithoutCubes();
     }
 
     private Vector3 aRandomPointWithoutCubes()
