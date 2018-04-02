@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using UniRx;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -13,19 +14,34 @@ public class MazeGenerator : MonoBehaviour
     public GameObject CubePrefab;
     public GameObject PointPrefab;
     public GameObject PowerUpPrefab;
+    
+    private List<Vector3> _points = new List<Vector3>();
 
     public int XSize = 20;
     public int ZSize = 20;
 
+    public ReactiveProperty<int> score { get; private set; }
+
     private const float scale = 0.5f;
 
     // Use this for initialization
-    private void Start()
-    {
+    private void Start() {
+        score = new ReactiveProperty<int>(0);
         CreateMap(XSize, ZSize);
+        score.Subscribe(value => Debug.Log(value));
     }
 
-    private List<Vector3> _points = new List<Vector3>();
+    public void OnScoreAPoint(int value, GameObject itemHit) {
+        Destroy(itemHit);
+        score.Value = score.Value + value;
+    }
+
+    public void OnGhostHit(GameObject ghost) {
+        score.Value = score.Value - 10 > 0 ? score.Value - 10 : 0;
+        ghost.GetComponent<Agent>().TeleportTo(aRandomPointWithoutCubes());
+    }
+    
+    
 
     //Ho reso la funzione non statica, altrimenti non potevo usare la variabile "CubePrefab" (non potevo farla statica perchè unity non 
     //mostra le variabili statiche nell'inspector)

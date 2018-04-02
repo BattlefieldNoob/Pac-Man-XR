@@ -31,6 +31,10 @@ public class Agent : MonoBehaviour
 			});
 		//AsyncCall();
 	}
+
+	public void TeleportTo(Vector3 position) {
+		transform.position = position;
+	}
 	
 	public async void AsyncCall()
 	{
